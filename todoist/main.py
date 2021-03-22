@@ -3,6 +3,7 @@ from datetime import datetime
 import emoji
 import click
 import configparser
+import os
 from tabulate import tabulate
 
 class TodoistConsoleClient:
@@ -40,8 +41,10 @@ class TodoistConsoleClient:
         print(f'token set to {value}')
 
     def getConfig(self, path = 'config.cfg'):
+        current_path = os.path.dirname(os.path.realpath(__file__)) 
+        current_path += "\\" + path
         config = configparser.ConfigParser()
-        config.read(path)
+        config.read(current_path)
         return config
 
     def printTasks(self):
