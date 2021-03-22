@@ -36,15 +36,20 @@ class TodoistConsoleClient:
 
     def setToken(self, value):
         self.CONFIG['auth']['token'] = value
-        with open('config.cfg', 'w') as configfile:
+        config_file_path = self.getConfigPath('config.cfg')
+        print(config_file_path)
+        with open(config_file_path, 'w') as configfile:
             self.CONFIG.write(configfile)
         print(f'token set to {value}')
 
-    def getConfig(self, path = 'config.cfg'):
+    def getConfigPath(self, file_name = 'config.cfg' ):
         current_path = os.path.dirname(os.path.realpath(__file__)) 
-        current_path += "\\" + path
+        current_path += "\\" + file_name
+        return current_path 
+
+    def getConfig(self, path = 'config.cfg'):
         config = configparser.ConfigParser()
-        config.read(current_path)
+        config.read(self.getConfigPath(path))
         return config
 
     def printTasks(self):
