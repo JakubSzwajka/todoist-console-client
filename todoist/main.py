@@ -26,6 +26,7 @@ def main(set_token, add, date, complete):
         client.addNewTask(add, date)
     elif complete:
         client.completeTask(complete)
+        client.printTasks()
     else: 
         client.printTasks()
 

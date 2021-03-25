@@ -1,5 +1,5 @@
 from todoist.api import TodoistAPI
-from datetime import datetime
+from datetime import date, datetime
 import configparser
 import emoji
 import os
@@ -20,10 +20,19 @@ class TodoistConsoleClient:
     def getTodaysTasks(self):
         todays = [ ]
         for item in self.client.state['items']:
-            if self.isOverdue(item) or self.isToday(item):
+            if self.isOverdue(item) or self.isToday(item) or self.wasCompletedToday(item):
                 todays.append(item.data)
         return todays
     
+
+    def wasCompletedToday(self, item):
+
+        if self.CONFIG['display']['show_todays_completed'] in ['true', 'True'] and item['date_completed']: 
+            completed_date = datetime.strptime( item['date_completed'], '%Y-%m-%dT%H:%M:%SZ')
+            if completed_date.date() == datetime.today().date(): 
+                return True
+        return False
+
     def isToday(self, item):
         todays_date = datetime.today().strftime('%Y-%m-%d')
         return item.data['due'] != None and item.data['due']['date'] == todays_date
@@ -50,8 +59,11 @@ class TodoistConsoleClient:
         config.read(self.getConfigPath(path))
         return config
 
+    def sortTasks(self, tasks):
+        return sorted(tasks, key = lambda i: (i['due']['date'], i['checked']), reverse=True)
+        
     def printTasks(self):
-        tasks = sorted(self.getTodaysTasks(), key = lambda i: (i['due']['date']))
+        tasks = self.sortTasks(self.getTodaysTasks())
         task_rows = []
         for task in tasks: 
             status = self.DONE_EMOJI if task['checked'] == 1 else self.NOT_DONE_EMOJI
