@@ -1,7 +1,6 @@
 from todoist_console_client import TodoistConsoleClient
 from datetime import datetime
 import click
-import sys
 
 @click.command()
 @click.option(
