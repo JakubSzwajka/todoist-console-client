@@ -8,7 +8,7 @@
             "not_done_emoji": ":cross_mark:"
         },
         "display": {
-            "show_todays_completed": false
+            "show_todays_completed": true
         }
     }
 }

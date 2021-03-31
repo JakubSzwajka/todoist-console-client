@@ -2,6 +2,7 @@ from todoist.api import TodoistAPI
 from datetime import date, datetime
 import configparser
 import emoji
+import json
 import os
 from tabulate import tabulate
 
@@ -9,13 +10,22 @@ class TodoistConsoleClient:
     def __init__(self):
         self.CONFIG = self.getConfig()
         self.client = self.getClient()
-        self.DONE_EMOJI = self.CONFIG['emoji']['DONE_EMOJI']
-        self.NOT_DONE_EMOJI = self.CONFIG['emoji']['NOT_DONE_EMOJI']
+        self.DONE_EMOJI = self.CONFIG['emoji']['done_emoji']
+        self.NOT_DONE_EMOJI = self.CONFIG['emoji']['not_done_emoji']
 
     def getClient(self):
         client = TodoistAPI(self.CONFIG['auth']['token'])
         client.sync()
         return client
+
+    def getConfig(self, file_name = 'config.json'):
+        cur_dir = os.path.dirname(os.path.realpath(__file__))
+        full_path = f"{cur_dir}/{file_name}"
+
+        with open(full_path, 'r') as config_file:
+            config_dict = json.loads(config_file.read())
+
+        return config_dict['default']
 
     def getTodaysTasks(self):
         todays = [ ]
@@ -23,11 +33,10 @@ class TodoistConsoleClient:
             if self.isOverdue(item) or self.isToday(item) or self.wasCompletedToday(item):
                 todays.append(item.data)
         return todays
-    
 
     def wasCompletedToday(self, item):
 
-        if self.CONFIG['display']['show_todays_completed'] in ['true', 'True'] and item['date_completed']: 
+        if self.CONFIG['display']['show_todays_completed'] == True and item['date_completed']: 
             completed_date = datetime.strptime( item['date_completed'], '%Y-%m-%dT%H:%M:%SZ')
             if completed_date.date() == datetime.today().date(): 
                 return True
@@ -54,10 +63,6 @@ class TodoistConsoleClient:
         current_path += "\\" + file_name
         return current_path 
 
-    def getConfig(self, path = 'config.cfg'):
-        config = configparser.ConfigParser()
-        config.read(self.getConfigPath(path))
-        return config
 
     def sortTasks(self, tasks):
         return sorted(tasks, key = lambda i: (i['due']['date'], i['checked']), reverse=True)
