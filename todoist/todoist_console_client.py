@@ -19,11 +19,11 @@ class TodoistConsoleClient:
         client.sync()
         return client
 
-    def getConfig(self, file_name = 'config.json'):
+    def getConfig(self, file_name = "C:\\Users\\szwaj\\Desktop\\config.json"):
         cur_dir = os.path.dirname(os.path.realpath(__file__))
         full_path = f"{cur_dir}/{file_name}"
 
-        with open(full_path, 'r') as config_file:
+        with open(file_name, 'r') as config_file:
             config_dict = json.loads(config_file.read())
 
         return config_dict['default']
