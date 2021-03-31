@@ -5,6 +5,7 @@ import emoji
 import json
 import os
 from tabulate import tabulate
+from todoist.models import Project
 
 class TodoistConsoleClient:
     def __init__(self):
@@ -67,14 +68,20 @@ class TodoistConsoleClient:
     def sortTasks(self, tasks):
         return sorted(tasks, key = lambda i: (i['due']['date'], i['checked']), reverse=True)
         
+    def getProjectName(self, project_id):
+        project = [project for project in self.client.state['projects'] if project.data['id'] == project_id]
+        if len(project) > 0:
+            return project[0].data['name']
+
+
     def printTasks(self):
         tasks = self.sortTasks(self.getTodaysTasks())
         task_rows = []
         for task in tasks: 
             status = self.DONE_EMOJI if task['checked'] == 1 else self.NOT_DONE_EMOJI
-            task_rows.append([emoji.emojize(status), task['id'], task['content'], task['due']['string']])
-
-        headers = ['Done', 'ID', 'Task', 'Date']
+            task_rows.append([emoji.emojize(status), task['id'], task['content'], task['due']['string'], self.getProjectName(task['project_id'])])
+        
+        headers = ['Done', 'ID', 'Task', 'Date','Project']
         print(tabulate(task_rows, headers=headers, showindex="always"))
         
     def addNewTask(self, value, date):
