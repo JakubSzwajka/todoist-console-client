@@ -64,7 +64,6 @@ class TodoistConsoleClient:
         current_path += "\\" + file_name
         return current_path 
 
-
     def sortTasks(self, tasks):
         return sorted(tasks, key = lambda i: (i['due']['date'], i['checked']), reverse=True)
         
@@ -72,7 +71,6 @@ class TodoistConsoleClient:
         project = [project for project in self.client.state['projects'] if project.data['id'] == project_id]
         if len(project) > 0:
             return project[0].data['name']
-
 
     def printTasks(self):
         tasks = self.sortTasks(self.getTodaysTasks())
