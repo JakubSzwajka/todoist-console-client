@@ -2,7 +2,7 @@
     "todoist": {
         "auth": {
             "provider" : "todoist",
-            "token": "7a5aa0aa21d2b8e54a64e0203e56b99d8871510e"
+            "token": ""
         },
         "display": {
             "show_todays_completed": false
