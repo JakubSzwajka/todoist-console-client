@@ -5,3 +5,4 @@ __pycache__
 
 # do not push build files to repo 
 build
+*logs
