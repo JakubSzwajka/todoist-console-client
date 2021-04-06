@@ -1,11 +1,12 @@
-from todoist_console_client import TodoistConsoleClient
+from console_client import ConsoleClient
 import typer 
 
 app = typer.Typer()
-client = TodoistConsoleClient()
+
+client = ConsoleClient()
 
 @app.command()
-def list( arg: str ):
+def list( ):
     client.printTasks()
 
 @app.command()
