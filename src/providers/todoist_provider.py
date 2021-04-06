@@ -1,6 +1,6 @@
 
 from todoist.api import TodoistAPI
-from providers.todo_interface import Todo_interface 
+from .todo_interface import Todo_interface 
 
 class TodoistProvider(Todo_interface):
     ''' 
@@ -24,13 +24,24 @@ class TodoistProvider(Todo_interface):
         self.client.commit()
 
     def getItems(self):
-        return self.client.state['items']
-        
+        for item in self.client.state['items']:
+            yield { 
+                'id' : item.data['id'],
+                'content' : item.data['content'],
+                'due': item.data['due'],
+                'project_name': self.__getProjectName(item.data['project_id'])
+                }
+
     def getProjects(self):
         return self.client.state['projects']
 
     def addItem(self, value, due):
         self.client.items.add( value, due = due)
+        self.commitChanges()
+
+    def completeTask(self, task_id):
+        task = self.__getTaskById(task_id)
+        task.complete()
         self.commitChanges()
     
     def __getTaskById(self, id):
@@ -38,8 +49,7 @@ class TodoistProvider(Todo_interface):
             if item.data['id'] == int(id):
                 return item
 
-    def completeTask(self, task_id):
-        task = self.__getTaskById(task_id)
-        task.complete()
-        self.commitChanges()
-
+    def __getProjectName(self, project_id):
+        project = [ project for project in self.getProjects() if project.data['id'] == project_id ]
+        if len(project) > 0:
+            return project[0].data['name']

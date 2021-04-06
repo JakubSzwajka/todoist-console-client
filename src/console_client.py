@@ -4,7 +4,14 @@ import json
 import os
 from tabulate import tabulate
 import typer
-from providers.todoist_provider import TodoistProvider
+from .providers.todoist_provider import TodoistProvider
+from .providers.provider_factory import ProviderFactory
+
+class EmojisHandler(object):
+    '''
+        handler for emojis codes
+    '''
+    pass
 
 class ConsoleClient:
     '''
@@ -14,17 +21,17 @@ class ConsoleClient:
         self.client_type = client_type
         
         self.configuration = self.__getConfig() 
-        self.client_handler = self.__getClientHandler( self.configuration['auth']['provider'] )
+        self.emojis = self.__getEmojis()
+        self.client_handler = ProviderFactory.getClientHandler( self.client_type, self.configuration['auth']['provider'] )
 
         self.DONE_EMOJI = self.configuration['emoji']['done_emoji']
         self.NOT_DONE_EMOJI = self.configuration['emoji']['not_done_emoji']
 
     def getTodaysTasks(self):
         todays = [ ]
-        
         for item in self.client_handler.getItems():
             if self.__isOverdue(item) or self.__isToday(item) or self.__wasCompletedToday(item):
-                todays.append(item.data)
+                todays.append(item)
         return todays
 
 
@@ -56,12 +63,12 @@ class ConsoleClient:
         
     def completeTask(self, task_id):
         self.client_handler.completeTask()
-        
-    def __getClientHandler(self, client_type):
-        if client_type == 'todoist':
-            return TodoistProvider( self.configuration )
-        else:
-            raise KeyError
+
+    def __getEmojis(self):
+        emojis_instance = EmojisHandler()
+
+        for emoji_key, emoji_value in self.configuration['emoji'].items():
+            setattr(emojis_instance, emoji_key, emoji_value )
 
     def __getConfig(self, file_name = "config.json"):
         cur_dir = os.path.dirname(os.path.realpath(__file__))
@@ -81,11 +88,11 @@ class ConsoleClient:
 
     def __isToday(self, item):
         todays_date = datetime.today().strftime('%Y-%m-%d')
-        return item.data['due'] != None and item.data['due']['date'] == todays_date
+        return item['due'] != None and item['due']['date'] == todays_date
 
     def __isOverdue(self, item):
         todays_date = datetime.today().strftime('%Y-%m-%d')
-        return item.data['due'] != None and item.data['due']['date'] <= todays_date and item.data['checked'] == 0
+        return item['due'] != None and item['due']['date'] <= todays_date and item['checked'] == 0
    
     def __getConfigPath(self, file_name = 'config.cfg' ):
         current_path = os.path.dirname(os.path.realpath(__file__)) 
@@ -94,8 +101,4 @@ class ConsoleClient:
 
     def __sortTasks(self, tasks):
         return sorted(tasks, key = lambda i: (i['due']['date'], i['checked']), reverse=True)
-        
-    def __getProjectName(self, project_id):
-        project = [ project for project in self.client_handler.getProjects() if project.data['id'] == project_id ]
-        if len(project) > 0:
-            return project[0].data['name']
+

@@ -1,13 +1,27 @@
 from console_client import ConsoleClient
 import typer 
+import emoji
+from tabulate import tabulate
+
 
 app = typer.Typer()
 
 client = ConsoleClient('todoist')
+emojis = client.emojis
+
+def printTasks(tasks):
+        task_rows = []
+        for task in tasks: 
+            status = emoji.done_emoji if task['checked'] == 1 else emoji.not_done_emoji
+            task_rows.append([emoji.emojize(status), task['id'], task['content'], task['due']['string'], task['project_name']])
+        
+        headers = ['Done', 'ID', 'Task', 'Date','Project']
+        typer.echo(tabulate(task_rows, headers=headers, showindex="always"))
 
 @app.command()
-def list( ):
-    client.printTasks()
+def list():
+    tasks = client.getTodaysTasks()
+    printTasks(tasks)
 
 @app.command()
 def add_task( task_text: str, date: str ):
