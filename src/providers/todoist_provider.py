@@ -1,6 +1,6 @@
 
 from todoist.api import TodoistAPI
-from todo_interface import Todo_interface 
+from providers.todo_interface import Todo_interface 
 
 class TodoistProvider(Todo_interface):
     ''' 
@@ -33,14 +33,13 @@ class TodoistProvider(Todo_interface):
         self.client.items.add( value, due = due)
         self.commitChanges()
     
-
-    def getTaskById(self, id):
+    def __getTaskById(self, id):
         for item in self.client_handler.getItems():
             if item.data['id'] == int(id):
                 return item
 
     def completeTask(self, task_id):
-        task = self.getTaskById(task_id)
+        task = self.__getTaskById(task_id)
         task.complete()
         self.commitChanges()
 

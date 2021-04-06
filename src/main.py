@@ -3,7 +3,7 @@ import typer
 
 app = typer.Typer()
 
-client = ConsoleClient()
+client = ConsoleClient('todoist')
 
 @app.command()
 def list( ):
